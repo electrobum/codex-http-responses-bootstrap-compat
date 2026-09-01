@@ -1,0 +1,28 @@
+{
+  "name": "codex-http-responses-bootstrap-compat",
+  "version": "0.1.0",
+  "private": false,
+  "description": "Narrow compatibility normalizer for Codex Desktop delegation and automation bootstrap inputs on strict HTTP Responses gateways.",
+  "type": "module",
+  "scripts": {
+    "test": "node --test",
+    "check": "node --check src/normalizer.mjs && node --check examples/http-bridge.mjs"
+  },
+  "keywords": [
+    "codex",
+    "codex-desktop",
+    "openai-responses",
+    "function-call-output",
+    "call-id",
+    "http-responses",
+    "heartbeat",
+    "automation",
+    "multi-agent",
+    "proxy",
+    "gateway"
+  ],
+  "license": "MIT",
+  "engines": {
+    "node": ">=20"
+  }
+}
