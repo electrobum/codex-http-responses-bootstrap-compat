@@ -1,11 +1,15 @@
 # Codex HTTP Responses Bootstrap Compat
 
-> **中文优先｜可复现的窄范围兼容层**：解决 Codex Desktop 经由中转站、聚合 API、反向代理或自建 HTTP Responses gateway 时，跨任务消息与 heartbeat 因无 `call_id` 的 `function_call_output` 被严格校验拒绝的问题。
+> **中文优先 / English included｜可复现的窄范围兼容层**：解决 Codex Desktop 经由中转站、聚合 API、反向代理或自建 HTTP Responses gateway 时，跨任务消息与 heartbeat 因无 `call_id` 的 `function_call_output` 被严格校验拒绝的问题。
 
 [![Node.js](https://img.shields.io/badge/node-%3E%3D20-339933?logo=nodedotjs&logoColor=white)](https://nodejs.org/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 **搜索关键词：** Codex Desktop、Codex 中转站、CC Switch、sub2api、Responses HTTP、OpenAI Responses API、`function_call_output requires call_id`、`previous_response_id`、`Responses WebSocket v2`、`send_message_to_thread`、`create_thread`、`automation_update`、heartbeat、scheduled automation、multi-agent、Leader Worker、跨任务消息、HTTP 400、反向代理、聚合 API、gateway。
+
+**English search terms:** Codex Desktop, third-party Responses provider, HTTP Responses gateway, function_call_output requires call_id, missing call_id, orphan function_call_output, previous_response_id, Responses WebSocket v2, poisoned thread, cross-thread message, delegation bootstrap, create_thread, send_message_to_thread, automation_update, heartbeat, scheduled automation, model gateway, reverse proxy.
+
+**Documentation:** [中文接入、验证与回滚指南](docs/INTEGRATION_ZH-CN.md) · [English integration, validation, and rollback guide](docs/INTEGRATION_EN.md)
 
 ## 30 秒判断：你是否遇到这个问题？
 
@@ -20,7 +24,7 @@ function_call_output requires call_id on HTTP requests;
 continuation via previous_response_id is only supported on Responses WebSocket v2
 ```
 
-那么先阅读本仓库的 [操作与回滚指南](docs/INTEGRATION_ZH-CN.md)。不要先更换 Key、域名、模型、Authorization、登录状态，也不要清空 `.codex` 或历史聊天记录。
+那么先阅读本仓库的 [中文操作与回滚指南](docs/INTEGRATION_ZH-CN.md) 或 [English integration guide](docs/INTEGRATION_EN.md)。不要先更换 Key、域名、模型、Authorization、登录状态，也不要清空 `.codex` 或历史聊天记录。
 
 ## 这是什么，不是什么
 
@@ -68,7 +72,7 @@ continuation via previous_response_id is only supported on Responses WebSocket v
 | 含 `previous_response_id`、真实 `function_call` 或 `item_reference` 的请求 | 原样转发 | 属于真正的 Responses continuation / tool-call 上下文 |
 | 任何未知、不完整或格式异常的无 `call_id` 输出 | 原样转发并让网关拒绝 | 宁可暴露新形态，也不能悄悄破坏工具协议 |
 
-完整字段条件、反例和验证顺序见 [中文接入、验证与回滚指南](docs/INTEGRATION_ZH-CN.md)。
+完整字段条件、反例和验证顺序见 [中文接入、验证与回滚指南](docs/INTEGRATION_ZH-CN.md) 和 [English integration, validation, and rollback guide](docs/INTEGRATION_EN.md)。
 
 ## 快速开始（只在隔离环境）
 
@@ -82,7 +86,7 @@ $env:CODEX_COMPAT_PORT = '18766'
 node examples/http-bridge.mjs
 ```
 
-然后让**独立、可丢弃的测试 app-server**把 `/v1/responses` 指向 `http://127.0.0.1:18766/v1`，保持现有的 provider、认证与登录机制不变。详细规则、验证矩阵和回滚步骤见 [docs/INTEGRATION_ZH-CN.md](docs/INTEGRATION_ZH-CN.md)。
+然后让**独立、可丢弃的测试 app-server**把 `/v1/responses` 指向 `http://127.0.0.1:18766/v1`，保持现有的 provider、认证与登录机制不变。详细规则、验证矩阵和回滚步骤见 [中文指南](docs/INTEGRATION_ZH-CN.md) 和 [English guide](docs/INTEGRATION_EN.md)。
 
 > 不要把 `18766` 直接替换到正在运行的生产客户端；先只在新建 disposable/ephemeral 空白任务中测试。
 
@@ -102,6 +106,16 @@ npm test
 - [sub2api #6450](https://github.com/Wei-Shaw/sub2api/pull/6450)：automation bootstrap 的结构化规范化方案。
 
 如果你的中转站是 sub2api 或有能力修改 gateway，优先采用/合并上游的窄范围修复；本仓库用于解释、回归和为尚未合并修复的中转层提供参考。
+
+## English users and upstream reports
+
+这不是只发生在中文中转站用户身上的问题。英文上游报告也描述了同一类协议边界：Codex 发出的、没有可用 `call_id` 的 `function_call_output`，会在严格的第三方 HTTP Responses upstream 被拒绝，尤其会影响任务委派、恢复、heartbeat 或 automation bootstrap。
+
+- [openai/codex #42088](https://github.com/openai/codex/issues/42088)：unpaired `function_call_output` 被严格 upstream 拒绝。
+- [openai/codex #42067](https://github.com/openai/codex/issues/42067)：第三方 Responses provider 上的跨任务发送/恢复缺少 `call_id`。
+- [openai/codex #41690](https://github.com/openai/codex/issues/41690)：Codex Desktop automation bootstrap 与第三方 Responses provider 的兼容性问题。
+
+这些 issue 不能证明所有中转站故障有相同根因；它们说明英文用户有相同的可检索症状与协议边界。英文读者可直接使用 [English integration, validation, and rollback guide](docs/INTEGRATION_EN.md)。本仓库是对上游修复的文档、测试与参考实现补充，不替代 native gateway 修复或 Responses WebSocket v2 支持。
 
 ## 贡献
 
